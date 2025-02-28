@@ -35,6 +35,34 @@
       font-size: 2rem;
       margin-bottom: 10px;
     }
+    /* 난이도 선택 영역 - 라디오 버튼을 숨기고 버튼처럼 보이는 레이블로 변경 */
+    #modeSelection {
+      margin: 20px 0;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    #modeSelection input[type="radio"] {
+      display: none;
+    }
+    #modeSelection label {
+      background: #fff;
+      color: #333;
+      border-radius: 25px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      user-select: none;
+      border: 2px solid transparent;
+    }
+    #modeSelection input[type="radio"]:checked + label {
+      background: #f0f0f0;
+      transform: scale(1.05);
+      border: 2px solid #ffd700;
+      box-shadow: 0 0 10px rgba(255,215,0,0.8);
+    }
     #stageDisplay {
       font-size: 1.2rem;
       margin-bottom: 20px;
@@ -101,6 +129,16 @@
 <body>
   <div class="container">
     <h1>도연이 국기게임</h1>
+    
+    <!-- 난이도 선택 영역 (게임 전) -->
+    <div id="modeSelection">
+      <input type="radio" id="easy" name="difficulty" value="easy" checked>
+      <label for="easy">쉬움</label>
+      <input type="radio" id="hard" name="difficulty" value="hard">
+      <label for="hard">어려움</label>
+    </div>
+    
+    <!-- 게임 영역 -->
     <div id="game" style="display:none;">
       <div id="stageDisplay">단계: 1</div>
       <div id="flagDisplay" class="flag"></div>
@@ -111,14 +149,16 @@
         <button id="restartBtn" style="display:none;">재시작</button>
       </div>
     </div>
+    
+    <!-- 시작 버튼 (난이도 선택 후) -->
     <button id="startBtn">시작하기</button>
   </div>
   
   <!-- 빵빠레 효과를 위한 canvas-confetti 라이브러리 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
-    // 유명한 80개 국가의 리스트
-    const wellKnownFlags = [
+    // 쉬움 모드 국기 (50개)
+    const easyMode = [
       { code: "KR", emoji: "🇰🇷", country: "대한민국" },
       { code: "JP", emoji: "🇯🇵", country: "일본" },
       { code: "US", emoji: "🇺🇸", country: "미국" },
@@ -143,6 +183,60 @@
       { code: "BE", emoji: "🇧🇪", country: "벨기에" },
       { code: "CH", emoji: "🇨🇭", country: "스위스" },
       { code: "AT", emoji: "🇦🇹", country: "오스트리아" },
+      { code: "PL", emoji: "🇵🇱", country: "폴란드" },
+      { code: "PT", emoji: "🇵🇹", country: "포르투갈" },
+      { code: "AR", emoji: "🇦🇷", country: "아르헨티나" },
+      { code: "CL", emoji: "🇨🇱", country: "칠레" },
+      { code: "CO", emoji: "🇨🇴", country: "콜롬비아" },
+      { code: "PE", emoji: "🇵🇪", country: "페루" },
+      { code: "ZA", emoji: "🇿🇦", country: "남아프리카" },
+      { code: "EG", emoji: "🇪🇬", country: "이집트" },
+      { code: "TR", emoji: "🇹🇷", country: "터키" },
+      { code: "SA", emoji: "🇸🇦", country: "사우디아라비아" },
+      { code: "IL", emoji: "🇮🇱", country: "이스라엘" },
+      { code: "GR", emoji: "🇬🇷", country: "그리스" },
+      { code: "HU", emoji: "🇭🇺", country: "헝가리" },
+      { code: "CZ", emoji: "🇨🇿", country: "체코" },
+      { code: "SK", emoji: "🇸🇰", country: "슬로바키아" },
+      { code: "IS", emoji: "🇮🇸", country: "아이슬란드" },
+      { code: "IE", emoji: "🇮🇪", country: "아일랜드" },
+      { code: "RO", emoji: "🇷🇴", country: "루마니아" },
+      { code: "BG", emoji: "🇧🇬", country: "불가리아" },
+      { code: "HR", emoji: "🇭🇷", country: "크로아티아" },
+      { code: "RS", emoji: "🇷🇸", country: "세르비아" },
+      { code: "UA", emoji: "🇺🇦", country: "우크라이나" },
+      { code: "MY", emoji: "🇲🇾", country: "말레이시아" },
+      { code: "SG", emoji: "🇸🇬", country: "싱가포르" },
+      { code: "ID", emoji: "🇮🇩", country: "인도네시아" },
+      { code: "TH", emoji: "🇹🇭", country: "태국" }
+    ];
+    
+    // 어려움 모드 국기 (80개)
+    const hardMode = [
+      { code: "KR", emoji: "🇰🇷", country: "대한민국" },
+      { code: "JP", emoji: "🇯🇵", country: "일본" },
+      { code: "US", emoji: "🇺🇸", country: "미국" },
+      { code: "GB", emoji: "🇬🇧", country: "영국" },
+      { code: "FR", emoji: "🇫🇷", country: "프랑스" },
+      { code: "DE", emoji: "🇩🇪", country: "독일" },
+      { code: "CA", emoji: "🇨🇦", country: "캐나다" },
+      { code: "CN", emoji: "🇨🇳", country: "중국" },
+      { code: "IN", emoji: "🇮🇳", country: "인도" },
+      { code: "BR", emoji: "🇧🇷", country: "브라질" },
+      { code: "RU", emoji: "🇷🇺", country: "러시아" },
+      { code: "IT", emoji: "🇮🇹", country: "이탈리아" },
+      { code: "ES", emoji: "🇪🇸", country: "스페인" },
+      { code: "MX", emoji: "🇲🇽", country: "멕시코" },
+      { code: "AU", emoji: "🇦🇺", country: "오스트레일리아" },
+      { code: "NZ", emoji: "🇳🇿", country: "뉴질랜드" },
+      { code: "SE", emoji: "🇸🇪", country: "스웨덴" },
+      { code: "NO", emoji: "🇳🇴", country: "노르웨이" },
+      { code: "FI", emoji: "🇫🇮", country: "핀란드" },
+      { code: "DK", emoji: "🇩🇰", country: "덴마크" },
+      { code: "NL", emoji: "🇳🇱", country: "네덜란드" },
+      { code: "BE", emoji: "🇧🇪", country: "벨기에" },
+      { code: "CH", emoji: "🇨🇭", country: "스위스" },
+      { code: "AT", emoji: "🇦🇹", country: "오스트레일리아" },
       { code: "PL", emoji: "🇵🇱", country: "폴란드" },
       { code: "PT", emoji: "🇵🇹", country: "포르투갈" },
       { code: "AR", emoji: "🇦🇷", country: "아르헨티나" },
@@ -201,11 +295,13 @@
       { code: "TW", emoji: "🇹🇼", country: "대만" }
     ];
     
-    let availableFlags = [...wellKnownFlags];
+    let availableFlags = [];
     let currentFlag = null;
     let stage = 1;
+    let currentMode = "easy"; // 기본 모드는 쉬움
     
     const startBtn = document.getElementById("startBtn");
+    const modeSelection = document.getElementById("modeSelection");
     const gameDiv = document.getElementById("game");
     const stageDisplay = document.getElementById("stageDisplay");
     const flagDisplay = document.getElementById("flagDisplay");
@@ -214,11 +310,18 @@
     const nextBtn = document.getElementById("nextBtn");
     const restartBtn = document.getElementById("restartBtn");
     
+    // 시작 버튼 클릭 시 선택한 난이도에 따라 게임 초기화
     startBtn.addEventListener("click", () => {
-      startBtn.style.display = "none";
-      gameDiv.style.display = "block";
+      currentMode = document.querySelector('input[name="difficulty"]:checked').value;
+      availableFlags = (currentMode === "easy" ? easyMode : hardMode).slice();
       stage = 1;
       stageDisplay.textContent = "단계: " + stage;
+      
+      // 난이도 선택 영역과 시작 버튼 숨김, 게임 영역 표시
+      modeSelection.style.display = "none";
+      startBtn.style.display = "none";
+      gameDiv.style.display = "block";
+      
       showRandomFlag();
     });
     
@@ -242,21 +345,24 @@
     });
     
     restartBtn.addEventListener("click", () => {
-      // 게임을 처음부터 다시 시작
-      availableFlags = [...wellKnownFlags];
+      // 재시작 시 난이도 선택 영역과 시작 버튼 보이도록 설정
+      availableFlags = [];
       stage = 1;
-      stageDisplay.textContent = "단계: " + stage;
       countryNameDiv.textContent = "";
+      gameDiv.style.display = "none";
+      modeSelection.style.display = "flex";
+      startBtn.style.display = "inline-block";
+      
+      // 버튼 보이기 재설정
       answerBtn.style.display = "inline-block";
       nextBtn.style.display = "inline-block";
       restartBtn.style.display = "none";
-      showRandomFlag();
     });
     
     function showRandomFlag() {
       if (availableFlags.length === 0) {
         flagDisplay.textContent = "모든 국기를 다 보았어요!";
-        // 게임 종료 시, 다음과 정답 버튼 숨기고 재시작 버튼 노출
+        // 게임 종료 시, 정답 보기 및 다음 국기 버튼 숨기고 재시작 버튼 노출
         answerBtn.style.display = "none";
         nextBtn.style.display = "none";
         restartBtn.style.display = "inline-block";
@@ -269,4 +375,3 @@
   </script>
 </body>
 </html>
-
