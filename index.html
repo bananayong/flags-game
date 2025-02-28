@@ -2,6 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <!-- 모바일 최적화를 위한 뷰포트 설정 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>도연이 국기게임</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
@@ -10,10 +12,11 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: #fff;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 20px;
     }
     .container {
       background: rgba(255, 255, 255, 0.1);
@@ -21,15 +24,19 @@
       box-shadow: 0 8px 32px 0 rgba(31,38,135,0.37);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      padding: 40px 30px;
+      padding: 30px 20px;
       text-align: center;
-      width: 90%;
+      width: 100%;
       max-width: 500px;
       position: relative;
       overflow: hidden;
     }
     h1 {
       font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    #stageDisplay {
+      font-size: 1.2rem;
       margin-bottom: 20px;
     }
     .flag {
@@ -40,7 +47,7 @@
     .flag:hover {
       transform: scale(1.1);
     }
-    /* 정답 영역의 높이를 고정하여 container의 레이아웃이 변경되지 않도록 함 */
+    /* 정답 영역의 높이를 고정하여 레이아웃이 흔들리지 않도록 함 */
     #countryName {
       font-size: 1.5rem;
       margin: 10px 0;
@@ -51,18 +58,22 @@
     }
     .buttons {
       margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     button {
       background: #fff;
       border: none;
       color: #333;
       padding: 10px 20px;
-      margin: 0 10px;
       border-radius: 25px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
+      margin: 5px;
     }
     button:hover {
       background: #f0f0f0;
@@ -90,21 +101,23 @@
 <body>
   <div class="container">
     <h1>도연이 국기게임</h1>
-    <button id="startBtn">시작하기</button>
     <div id="game" style="display:none;">
+      <div id="stageDisplay">단계: 1</div>
       <div id="flagDisplay" class="flag"></div>
       <div id="countryName"></div>
       <div class="buttons">
         <button id="answerBtn">정답 보기</button>
         <button id="nextBtn">다음 국기</button>
+        <button id="restartBtn" style="display:none;">재시작</button>
       </div>
     </div>
+    <button id="startBtn">시작하기</button>
   </div>
   
-  <!-- canvas-confetti 라이브러리 CDN -->
+  <!-- 빵빠레 효과를 위한 canvas-confetti 라이브러리 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
-    // 신뢰할 수 있는 50개 국가의 리스트 (국기 이모지가 정상적으로 표시되는 국가)
+    // 유명한 80개 국가의 리스트
     const wellKnownFlags = [
       { code: "KR", emoji: "🇰🇷", country: "대한민국" },
       { code: "JP", emoji: "🇯🇵", country: "일본" },
@@ -155,29 +168,64 @@
       { code: "MY", emoji: "🇲🇾", country: "말레이시아" },
       { code: "SG", emoji: "🇸🇬", country: "싱가포르" },
       { code: "ID", emoji: "🇮🇩", country: "인도네시아" },
-      { code: "TH", emoji: "🇹🇭", country: "태국" }
+      { code: "TH", emoji: "🇹🇭", country: "태국" },
+      { code: "VN", emoji: "🇻🇳", country: "베트남" },
+      { code: "PH", emoji: "🇵🇭", country: "필리핀" },
+      { code: "PK", emoji: "🇵🇰", country: "파키스탄" },
+      { code: "BD", emoji: "🇧🇩", country: "방글라데시" },
+      { code: "NG", emoji: "🇳🇬", country: "나이지리아" },
+      { code: "KE", emoji: "🇰🇪", country: "케냐" },
+      { code: "AE", emoji: "🇦🇪", country: "아랍에미리트" },
+      { code: "QA", emoji: "🇶🇦", country: "카타르" },
+      { code: "KW", emoji: "🇰🇼", country: "쿠웨이트" },
+      { code: "OM", emoji: "🇴🇲", country: "오만" },
+      { code: "SI", emoji: "🇸🇮", country: "슬로베니아" },
+      { code: "LT", emoji: "🇱🇹", country: "리투아니아" },
+      { code: "LV", emoji: "🇱🇻", country: "라트비아" },
+      { code: "EE", emoji: "🇪🇪", country: "에스토니아" },
+      { code: "MD", emoji: "🇲🇩", country: "몰도바" },
+      { code: "GE", emoji: "🇬🇪", country: "조지아" },
+      { code: "AM", emoji: "🇦🇲", country: "아르메니아" },
+      { code: "AZ", emoji: "🇦🇿", country: "아제르바이잔" },
+      { code: "KZ", emoji: "🇰🇿", country: "카자흐스탄" },
+      { code: "UZ", emoji: "🇺🇿", country: "우즈베키스탄" },
+      { code: "AF", emoji: "🇦🇫", country: "아프가니스탄" },
+      { code: "IR", emoji: "🇮🇷", country: "이란" },
+      { code: "IQ", emoji: "🇮🇶", country: "이라크" },
+      { code: "SY", emoji: "🇸🇾", country: "시리아" },
+      { code: "LB", emoji: "🇱🇧", country: "레바논" },
+      { code: "JO", emoji: "🇯🇴", country: "요르단" },
+      { code: "CY", emoji: "🇨🇾", country: "키프로스" },
+      { code: "MT", emoji: "🇲🇹", country: "몰타" },
+      { code: "CR", emoji: "🇨🇷", country: "코스타리카" },
+      { code: "TW", emoji: "🇹🇼", country: "대만" }
     ];
-
+    
     let availableFlags = [...wellKnownFlags];
     let currentFlag = null;
-
+    let stage = 1;
+    
     const startBtn = document.getElementById("startBtn");
     const gameDiv = document.getElementById("game");
+    const stageDisplay = document.getElementById("stageDisplay");
     const flagDisplay = document.getElementById("flagDisplay");
     const countryNameDiv = document.getElementById("countryName");
     const answerBtn = document.getElementById("answerBtn");
     const nextBtn = document.getElementById("nextBtn");
-
+    const restartBtn = document.getElementById("restartBtn");
+    
     startBtn.addEventListener("click", () => {
       startBtn.style.display = "none";
       gameDiv.style.display = "block";
+      stage = 1;
+      stageDisplay.textContent = "단계: " + stage;
       showRandomFlag();
     });
-
+    
     answerBtn.addEventListener("click", () => {
       if (currentFlag) {
         countryNameDiv.textContent = currentFlag.country;
-        // 빵빠레 터지는 효과: confetti 라이브러리 활용
+        // 빵빠레 효과 (Confetti)
         confetti({
           particleCount: 100,
           spread: 100,
@@ -185,15 +233,33 @@
         });
       }
     });
-
+    
     nextBtn.addEventListener("click", () => {
       countryNameDiv.textContent = "";
+      stage++;
+      stageDisplay.textContent = "단계: " + stage;
       showRandomFlag();
     });
-
+    
+    restartBtn.addEventListener("click", () => {
+      // 게임을 처음부터 다시 시작
+      availableFlags = [...wellKnownFlags];
+      stage = 1;
+      stageDisplay.textContent = "단계: " + stage;
+      countryNameDiv.textContent = "";
+      answerBtn.style.display = "inline-block";
+      nextBtn.style.display = "inline-block";
+      restartBtn.style.display = "none";
+      showRandomFlag();
+    });
+    
     function showRandomFlag() {
       if (availableFlags.length === 0) {
         flagDisplay.textContent = "모든 국기를 다 보았어요!";
+        // 게임 종료 시, 다음과 정답 버튼 숨기고 재시작 버튼 노출
+        answerBtn.style.display = "none";
+        nextBtn.style.display = "none";
+        restartBtn.style.display = "inline-block";
         return;
       }
       const randomIndex = Math.floor(Math.random() * availableFlags.length);
