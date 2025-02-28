@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <!-- 모바일 최적화를 위한 뷰포트 설정 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 모바일 최적화를 위한 뷰포트 설정 (확대/이동 방지) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>도연이 국기게임</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
@@ -17,6 +17,7 @@
       justify-content: center;
       align-items: center;
       padding: 20px;
+      touch-action: manipulation;
     }
     .container {
       background: rgba(255, 255, 255, 0.1);
@@ -124,6 +125,18 @@
       background: #f0f0f0;
       transform: scale(1.05);
     }
+    /* 애니메이션 효과 및 성취감을 주는 최종 메시지 스타일 */
+    .final-message {
+      display: inline-block;
+      font-size: 2rem;
+      font-weight: 600;
+      animation: pop 0.8s ease-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -157,6 +170,28 @@
   <!-- 빵빠레 효과를 위한 canvas-confetti 라이브러리 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <script>
+    // 모바일에서 핀치 및 더블탭 확대를 막기 위한 코드
+    (function() {
+      var lastTouchEnd = 0;
+      document.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, { passive: false });
+      
+      document.addEventListener('touchend', function (event) {
+        var now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+      
+      document.addEventListener('gesturestart', function (event) {
+        event.preventDefault();
+      });
+    })();
+    
     // 쉬움 모드 국기 (50개)
     const easyMode = [
       { code: "KR", emoji: "🇰🇷", country: "대한민국" },
@@ -361,7 +396,7 @@
     
     function showRandomFlag() {
       if (availableFlags.length === 0) {
-        flagDisplay.textContent = "모든 국기를 다 보았어요!";
+        flagDisplay.innerHTML = '<span class="final-message">정말 똑똑하군요!<br>모든 국기를 다 맞췄어요!</span>';
         // 게임 종료 시, 정답 보기 및 다음 국기 버튼 숨기고 재시작 버튼 노출
         answerBtn.style.display = "none";
         nextBtn.style.display = "none";
