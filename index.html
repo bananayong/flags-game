@@ -7,6 +7,11 @@
   <title>도연이 국기게임</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
+    /* HTML과 body에 스크롤 방지 */
+    html, body {
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
@@ -271,7 +276,7 @@
       { code: "NL", emoji: "🇳🇱", country: "네덜란드" },
       { code: "BE", emoji: "🇧🇪", country: "벨기에" },
       { code: "CH", emoji: "🇨🇭", country: "스위스" },
-      { code: "AT", emoji: "🇦🇹", country: "오스트레일리아" },
+      { code: "AT", emoji: "🇦🇹", country: "오스트리아" },
       { code: "PL", emoji: "🇵🇱", country: "폴란드" },
       { code: "PT", emoji: "🇵🇹", country: "포르투갈" },
       { code: "AR", emoji: "🇦🇷", country: "아르헨티나" },
@@ -350,6 +355,7 @@
       currentMode = document.querySelector('input[name="difficulty"]:checked').value;
       availableFlags = (currentMode === "easy" ? easyMode : hardMode).slice();
       stage = 1;
+      stageDisplay.style.visibility = "visible";
       stageDisplay.textContent = "단계: " + stage;
       
       // 난이도 선택 영역과 시작 버튼 숨김, 게임 영역 표시
@@ -388,15 +394,18 @@
       modeSelection.style.display = "flex";
       startBtn.style.display = "inline-block";
       
-      // 버튼 보이기 재설정
+      // 버튼 보이기 재설정 및 단계 표시 다시 보이게
       answerBtn.style.display = "inline-block";
       nextBtn.style.display = "inline-block";
       restartBtn.style.display = "none";
+      stageDisplay.style.visibility = "visible";
     });
     
     function showRandomFlag() {
       if (availableFlags.length === 0) {
-        flagDisplay.innerHTML = '<span class="final-message">정말 똑똑하군요!<br>모든 국기를 다 맞췄어요!</span>';
+        // 최종 단계에서는 단계 표시를 숨기되, layout 공간은 유지
+        stageDisplay.style.visibility = "hidden";
+        flagDisplay.innerHTML = '<span class="final-message">축하합니다!<br>국기 게임을 완성했어요!</span>';
         // 게임 종료 시, 정답 보기 및 다음 국기 버튼 숨기고 재시작 버튼 노출
         answerBtn.style.display = "none";
         nextBtn.style.display = "none";
